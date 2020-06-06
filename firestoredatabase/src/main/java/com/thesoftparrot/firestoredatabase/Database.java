@@ -1,15 +1,20 @@
 package com.thesoftparrot.firestoredatabase;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.thesoftparrot.firestoredatabase.callbacks.DeleteStatusCallback;
 import com.thesoftparrot.firestoredatabase.callbacks.FetchAllDocumentsCallback;
 import com.thesoftparrot.firestoredatabase.callbacks.FileUploadStatusCallback;
 import com.thesoftparrot.firestoredatabase.callbacks.SingleFetchStatusCallback;
@@ -19,6 +24,8 @@ import com.thesoftparrot.firestoredatabase.callbacks.UpdateStatusCallback;
 import java.io.File;
 
 public final class Database<T> {
+
+    private static final String TAG = "Database";
 
     private Context mContext;
     private StorageReference mRootStorage;
@@ -89,6 +96,7 @@ public final class Database<T> {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> listener.onSingleFetchStatusSuccess(documentSnapshot, "Data Fetched Successfully"))
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "_on_FetchSingle_Error: "+e.getMessage());
                     e.printStackTrace();
                     listener.onSingleFetchStatusFailure(e.getMessage());
                 });
@@ -111,6 +119,7 @@ public final class Database<T> {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> listener.onSingleFetchStatusSuccess(documentSnapshot, "Data Fetched Successfully"))
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "_on_FetchSingle_Error: "+e.getMessage());
                     e.printStackTrace();
                     listener.onSingleFetchStatusFailure(e.getMessage());
                 });
@@ -145,6 +154,33 @@ public final class Database<T> {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> listener.onAllDocumentsFetchSuccessful(queryDocumentSnapshots.getDocuments(), "Documents Fetched Successfully"))
                 .addOnFailureListener(e -> listener.onAllDocumentsFetchFailure(e.getMessage()));
+    }
+
+    // Delete Single Document
+    public void deleteSingle(String collection, String document, DeleteStatusCallback listener){
+
+        if(!isConnectedToNetwork()){
+            listener.onSingleDeleteFailure(NO_INTERNET);
+            return;
+        }
+
+        mRootDatabase
+                .collection(collection)
+                .document(document)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        listener.onSingleDeleteSuccess("Deleted");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        listener.onSingleDeleteFailure(e.getMessage());
+                    }
+                });
+
     }
 
     // Uploading file to Database
@@ -188,8 +224,7 @@ public final class Database<T> {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    public boolean isConnectedToNetwork(){
+    private boolean isConnectedToNetwork(){
         boolean hasWIFI = false;
         boolean hasMobileData = false;
 
@@ -212,7 +247,7 @@ public final class Database<T> {
             }
         }
 
-        return (hasMobileData || hasWIFI);
+        return (!hasMobileData && !hasWIFI);
     }
 
 }

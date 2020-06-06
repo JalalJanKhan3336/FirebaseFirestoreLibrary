@@ -1,0 +1,3 @@
+include ':firestoredatabase'
+include ':app'
+rootProject.name = "FirebaseFirestoreLibrary"

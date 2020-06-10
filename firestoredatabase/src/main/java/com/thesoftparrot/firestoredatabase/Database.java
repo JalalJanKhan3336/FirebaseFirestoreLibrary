@@ -247,7 +247,7 @@ public final class Database<T> {
             }
         }
 
-        return (!hasMobileData && !hasWIFI);
+        return (hasMobileData || hasWIFI);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.thesoftparrot.firestoredatabase;
+package com.thesoftparrot.firestoredatabase.remote;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -247,7 +247,8 @@ public final class Database<T> {
             }
         }
 
-        return (!hasMobileData && !hasWIFI);
+        return (hasMobileData || hasWIFI);
     }
+
 
 }

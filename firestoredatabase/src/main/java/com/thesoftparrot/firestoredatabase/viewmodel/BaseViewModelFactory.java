@@ -10,9 +10,9 @@ import com.thesoftparrot.firestoredatabase.callbacks.FileProgressStatusCallback;
 import com.thesoftparrot.firestoredatabase.callbacks.ProgressStatusCallback;
 
 public class BaseViewModelFactory extends ViewModelProvider.NewInstanceFactory {
-    private Context mContext;
-    private ProgressStatusCallback mProgressStatusCallback;
-    private FileProgressStatusCallback mFileProgressStatusCallback;
+    protected Context mContext;
+    protected ProgressStatusCallback mProgressStatusCallback;
+    protected FileProgressStatusCallback mFileProgressStatusCallback;
 
     public BaseViewModelFactory(Context mContext) {
         this.mContext = mContext;
